@@ -1,0 +1,89 @@
+Criação do projeto:
+
+oc login 'token' (get token no openshift)
+
+oc new-project em-3436339 
+
+
+Criação da imagem no Quay.io:
+
+lab image-operations start
+
+podman login quay.io
+
+'username' (e-mail)
+
+'senha' (definida no quay.io)
+
+podman search httpd
+
+podman run -d --name official-httpd -p 8180:80 quay.io/redhattraining/httpd-parent
+
+podman exec -it official-httpd /bin/bash
+
+cd /var/www/html
+
+echo “rm-343633”
+
+cat index.html
+
+exit
+
+podman ps
+
+podman stop official-httpd
+
+podman diff official-httpd
+
+podman commit -a 'name' official-httpd do180-custom-httpd (name é o nome do usuário)
+
+podman images
+
+podman tag do180-custom-httpd quay.io/'user'/do180-custom-httpd:1.0 (user é o usuário no Quay.io)
+
+podman push quay.io/'user'/do180-custom-httpd:1.0 (user é o usuário no Quay.io)
+
+podman pull -q quay.io/'user'/do180-custom-httpd:1.0 (user é o usuário no Quay.io)
+
+podman run -d --name test-httpd -p 8280:80 'user'/do180-custom-httpd:1.0 (user é o usuário no Quay.io)
+
+curl http://localhost:8280/do180.html 
+
+lab image-operations finish
+
+
+Depois de subir um arquivo do git, fazer a condiguração:
+
+oc new-app postgresql-persistent --name sample-database --param DATABASE_SERVICE_NAME=sample-database --param POSTGRESQL_USER=sampledb --param POSTGRESQL_PASSWORD=sampledb --param POSTGRESQL_DATABASE=sampledb
+
+oc get pods
+
+oc get dc
+
+oc get deploymentoc set env deployment/blog-django-py-git BLOG_SITE_NAME='RM-343633'
+
+oc get podsoc set env deployment/blog-django-py-git DATABASE_URL=postgresql://sampledb:sampledb@sample-database:5432/sampledb
+
+oc get podsoc rsh blog-django-py-git-6c9ccbc64-r7ttd
+
+oc get pods
+
+cp .s2i/action_hooks/setup .
+
+./setup
+
+
+Teste do HPA com k6:
+
+import http from 'k6/http';
+import {check, sleep} from 'k6';
+
+export default function() {
+  let res = http.post('http://blog-django-py-git-em-343633.apps.na46a.prod.ole.redhat.com/');
+    check(res, { 'success login': (r) => r.status === 200 });
+    sleep(0.3);
+}
+
+cd desktop
+
+k6 run --vus 200 --duration 10s fiap-8aso.json

@@ -103,7 +103,7 @@ jobs:
         uses: redhat-actions/openshift-tools-installer@v1
         with:
           source: github
-          github_pat: https://github.com/GabrielSMB/MBA-343633-OpenShift
+          github_pat: ${{ github.token }}
           # Choose the desired version of the CRDA CLI
           crda: "latest"
 
